@@ -1,0 +1,1143 @@
+function varargout = Graf(varargin)
+% Graf MATLAB code for Graf.fig
+%      Graf, by itself, creates a new Graf or raises the existing
+%      singleton*.
+%
+%      H = Graf returns the handle to a new Graf or the handle to
+%      the existing singleton*.
+%
+%      Graf('CALLBACK',hObject,eventData,handles,...) calls the local
+%      function named CALLBACK in Graf.M with the given input arguments.
+%
+%      Graf('Property','Value',...) creates a new Graf or raises the
+%      existing singleton*.  Starting from the left, property value pairs are
+%      applied to the GUI before Graf_OpeningFcn gets called.  An
+%      unrecognized property name or invalid value makes property application
+%      stop.  All inputs are passed to Graf_OpeningFcn via varargin.
+%
+%      *See GUI Options on GUIDE's Tools menu.  Choose "GUI allows only one
+%      instance to run (singleton)".
+%
+% See also: GUIDE, GUIDATA, GUIHANDLES
+
+% Edit the above text to modify the response to help Graf
+
+% Last Modified by GUIDE v2.5 23-Aug-2019 16:13:04
+
+% Begin initialization code - DO NOT EDIT
+
+gui_Singleton = 1;
+gui_State = struct('gui_Name',       mfilename, ...
+                   'gui_Singleton',  gui_Singleton, ...
+                   'gui_OpeningFcn', @Graf_OpeningFcn, ...
+                   'gui_OutputFcn',  @Graf_OutputFcn, ...
+                   'gui_LayoutFcn',  [] , ...
+                   'gui_Callback',   []);
+if nargin && ischar(varargin{1})
+    gui_State.gui_Callback = str2func(varargin{1});
+end
+
+if nargout
+    [varargout{1:nargout}] = gui_mainfcn(gui_State, varargin{:});
+else
+    gui_mainfcn(gui_State, varargin{:});
+end
+% End initialization code - DO NOT EDIT
+
+
+% --- Executes just before Graf is made visible.
+function Graf_OpeningFcn(hObject, eventdata, handles, varargin)
+% This function has no output args, see OutputFcn.
+% hObject    handle to figure
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+% varargin   command line arguments to Graf (see VARARGIN)
+
+% Choose default command line output for Graf
+handles.output = hObject;
+
+% Update handles structure
+guidata(hObject, handles);
+
+% UIWAIT makes Graf wait for user response (see UIRESUME)
+% uiwait(handles.figure1);
+
+
+% --- Outputs from this function are returned to the command line.
+function varargout = Graf_OutputFcn(hObject, eventdata, handles) 
+% varargout  cell array for returning output args (see VARARGOUT);
+% hObject    handle to figure
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Get default command line output from handles structure
+varargout{1} = handles.output;
+
+
+% --- Executes on slider movement.
+function Modo_Callback(hObject, eventdata, handles)
+global NumMode PhiSana PhiDan CoordX CoordZ;
+set(handles.Modo,'Max',NumMode);
+m=round(get(handles.Modo,'Value'));      
+axes(handles.axes1);
+if m==0
+    plot3(CoordX,PhiSana,CoordZ,'o');
+    title('Formas Modales');
+    grid on
+else
+S=PhiSana(:,m);
+D=PhiDan(:,m);
+plot(S,CoordZ,'ro',D,CoordZ,'bo');
+legend('\Phi Sana','\Phi Dañada')
+title(['Forma Modal  ' num2str(m)])
+grid on
+end
+
+
+% --- Executes during object creation, after setting all properties.
+function Modo_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to Modo (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: slider controls usually have a light gray background.
+if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor',[.9 .9 .9]);
+end
+
+
+
+function ModelDirectorySano_Callback(hObject, eventdata, handles)
+% hObject    handle to ModelDirectorySano (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of ModelDirectorySano as text
+%        str2double(get(hObject,'String')) returns contents of ModelDirectorySano as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function ModelDirectorySano_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to ModelDirectorySano (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+function ModelDirectoryDan_Callback(hObject, eventdata, handles)
+% hObject    handle to ModelDirectoryDan (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of ModelDirectoryDan as text
+%        str2double(get(hObject,'String')) returns contents of ModelDirectoryDan as a double
+ 
+
+% --- Executes during object creation, after setting all properties.
+
+function ModelDirectoryDan_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to ModelDirectoryDan (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on button press in Browse1.
+function Browse1_Callback(hObject, eventdata, handles)
+[ModelNameS, ModelDirectoryS]= uigetfile('*.sdb', 'Seleccione el modelo sano');
+dir = strcat(ModelDirectoryS,ModelNameS);
+set(handles.ModelDirectorySano,'string',dir);
+global  omegaS Masa MomentoS L CoordX CoordZ; 
+global PhiSana NumMode NumNode;
+[ PhiSana, omegaS, Masa, MomentoS, L ,CoordX , CoordZ]=CargarDatos(dir);
+[NumNode,NumMode]=size(PhiSana);  
+
+
+
+% --- Executes on button press in Browse2.
+function Browse2_Callback(hObject, eventdata, handles)
+
+[ModelNameD, ModelDirectoryD]= uigetfile('*.sdb', 'Seleccione el modelo dañado');
+dir = strcat(ModelDirectoryD,ModelNameD);
+set(handles.ModelDirectoryDan,'string',dir);
+global omegaD PhiDan MomentoD NumMode NumNode PhiSana;
+[ PhiDan, omegaD, ~ , MomentoD, ~ , ~, ~]=CargarDatos(dir); 
+for j=1:NumMode
+         for i=1:NumNode
+         if sign(PhiSana(i,j))~=sign(PhiDan(i,j))
+             PhiDan(i,j)=-1*PhiDan(i,j);
+         end
+         end
+     end
+
+
+% --- Executes on button press in FormasModales.
+function FormasModales_Callback(hObject, eventdata, handles)
+
+global PhiSana CoordX CoordZ;
+set(handles.Modo,'Visible','on');
+axes(handles.axes1);
+plot3(CoordX, PhiSana,CoordZ,'o');
+title('Formas Modales');
+grid on
+       set(handles.buttongroup1,'Visible','off');
+       set(handles.buttongroup2,'Visible','off');
+       set(handles.M,'Visible','off');
+       set(handles.CurvaturaM,'Visible','off');
+       set(handles.wavelets,'Visible','off');
+
+
+% --- Executes on button press in Metodos.
+function Metodos_Callback(hObject, eventdata, handles)
+
+
+        
+
+% --- Executes during object creation, after setting all properties.
+function Metodos_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to Metodos (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+
+% --- Executes on button press in EjecutarMetodo.
+function EjecutarMetodo_Callback(hObject, eventdata, handles)
+
+global PhiSana PhiDan L NumNode NumMode omegaS omegaD MomentoS MomentoD MatrizD Masa CoordZ ;
+    ev=str2double(get(handles.ElementoAVisualizar,'String'));
+    cm=str2double(get(handles.CantidadModo,'String'));
+    val= get(handles.Metodos,'Value');                 % returns selected item from popupmenu1
+        if cm>=1 & cm<=NumNode-1
+            [ PhiS,PhiD,NM,OmegaS,OmegaD,MomentS,MomentD ] =Modos(cm,NumNode, PhiSana, PhiDan, NumMode, omegaS, omegaD, MomentoS, MomentoD);
+        else
+            PhiS=PhiSana;
+            PhiD=PhiDan;
+            NM=NumMode;
+            OmegaS=omegaS;
+            OmegaD=omegaD;
+            MomentS=MomentoS;
+            MomentD=MomentoD;
+        end
+switch val
+    
+    case 1              % Criterio  de Correlación Modal (MAC).  
+      
+        [ mac, NMD ] = MAC(PhiSana, PhiDan );
+      set(handles.buttongroup1,'Visible','on');
+      m=get(handles.MAC,'Value');
+      y=1:NumMode;
+      if m==1
+      axes(handles.axes1);
+      stem(y,mac);
+      title('Criterio de Correlación Modal (MAC)');
+      ylabel('Valor MAC');
+      xlabel('Modos');
+      grid on
+      VM=zeros(1,NumMode);
+      VM(:,:)=0.85;
+      hold on
+      plot(VM,'r--');
+      hold off
+      else
+      bar(handles.axes1,y,NMD);
+      title('Diferencia Modal Normalizada (NMD)');
+      ylabel('Valor NMD');
+      xlabel('Modos');
+      grid on 
+      end
+      set(handles.buttongroup2,'Visible','off');
+      set(handles.Modo,'Visible','off');
+      set(handles.M,'Visible','off');
+      set(handles.wavelets,'Visible','off');
+      set(handles.CurvaturaM,'Visible','off');
+      set(handles.Elem,'Visible','off');
+      set(handles.ElementoAVisualizar,'Visible','off');
+      
+        
+    case 2              % Criterio de Revisión de la Seudo Ortogonalidad (POC). 
+        masa=Masa;
+        M=diag(masa);
+%         for i=1:NumMode
+            poc=PhiSana'*M*PhiDan;
+%         end     
+        axes(handles.axes1);
+        mesh(poc);
+        dg=diag(poc);
+        title('Criterio de Revisión de la Seudo Ortogonalidad (POC)');
+        zlabel('Valor de POC');
+        xlabel('Nodos');
+       set(handles.buttongroup1,'Visible','off');
+       set(handles.buttongroup2,'Visible','off');
+       set(handles.Modo,'Visible','off');
+       set(handles.M,'Visible','off');
+       set(handles.wavelets,'Visible','off');
+       set(handles.CurvaturaM,'Visible','off');
+       set(handles.Elem,'Visible','off');
+       set(handles.ElementoAVisualizar,'Visible','off');
+        
+    case 3                % Criterio Coordenado de Correlación Modal (CoMAC).  
+        
+      comac=CoMAC(PhiS, PhiD);
+       axes(handles.axes1);
+       [m,I]=min(comac);
+       m=round(m,3);
+       h=round(CoordZ(I),2);
+       p=plot(comac,CoordZ,'o',m,CoordZ(I));
+       p(2).Marker='o';
+       p(2).MarkerSize=10;
+       p(2).MarkerFaceColor='r';
+       legend({'Valores de Comac',['Mínimo Comac = ', num2str(m),' a los ',num2str(h),' m de altura']},'Location','southwest');
+       title('Criterio Coordenado de Correlación Modal (CoMAC)');
+       ylabel('Altura');
+       xlabel('Valor de CoMAC');
+       grid on
+       set(handles.buttongroup1,'Visible','off');
+       set(handles.buttongroup2,'Visible','off');
+       set(handles.Modo,'Visible','off');
+       set(handles.M,'Visible','off');
+       set(handles.wavelets,'Visible','off');
+       set(handles.CurvaturaM,'Visible','off');
+       set(handles.Elem,'Visible','off');
+       set(handles.ElementoAVisualizar,'Visible','off');
+     
+    case 4                  % Criterio Coordenado de Correlación Modal Mejorado (ECOMAC) 
+        
+        ECOMAC=(sum(abs(PhiS-PhiD),2))/(2*NM);
+        axes(handles.axes1);
+        [mx,I]=max(ECOMAC);
+        mx=round(mx,3);
+        h=round(CoordZ(I),2);
+        p = plot(ECOMAC,CoordZ,'o',mx,CoordZ(I),'or');
+        p(2).Marker='*';
+        p(2).MarkerSize=10;
+        legend({'Valores de ECOMAC',['Máximo ECOMAC = ', num2str(mx),' a los ',num2str(h),' m de altura']},'Location','east');
+        title('Criterio Coordenado de Correlación Modal Mejorado(ECoMAC)');
+        ylabel('Altura');
+        xlabel('Valor de ECoMAC');
+        grid on
+        
+       set(handles.buttongroup1,'Visible','off');
+       set(handles.buttongroup2,'Visible','off');
+       set(handles.Modo,'Visible','off');
+       set(handles.M,'Visible','off');
+       set(handles.wavelets,'Visible','off');
+       set(handles.CurvaturaM,'Visible','off');
+       set(handles.Elem,'Visible','off');
+       set(handles.ElementoAVisualizar,'Visible','off');
+        
+    case 5                  % Método de Cálculo de la Rigidez Directa
+
+      [kappaS,kappaD, EIsano, EIdan, CS, CD ] = RigidezDirecta( PhiS, PhiD, NumNode, NM, L, MomentS, MomentD, CoordZ);
+                                                            
+      set(handles.buttongroup2,'Visible','on');
+      set(handles.Elem,'Visible','on');
+      set(handles.ElementoAVisualizar,'Visible','on');
+      m=get(handles.Momento,'Value')
+      c=get(handles.CurvaturaModal,'Value')
+      
+      if m==1
+       ev=str2double(get(handles.ElementoAVisualizar,'String'));  
+       [a,b]=size(MomentS);
+      y=linspace(0,L,a);
+      axes(handles.axes1);
+      if ev>=1
+          plot([MomentS(:,ev), MomentD(:,ev)],y);
+          legend([num2str(ev),' Momento Sano'],[num2str(ev),' Momento Dañado']);
+          title('Momentos de las Fuerzas de Inercia que surgen por modos en el elemento sano y el dañado');
+          xlabel('Momentos de las Fuerzas de Inercia [kN]');
+          ylabel(['Altura ',num2str(L),'m']);
+          grid on
+      else
+          plot([MomentS, MomentD],y);
+          title('Momentos de las Fuerzas de Inercia que surgen por modos en el elemento sano y el dañado');
+          xlabel('Momentos de las Fuerzas de Inercia [kN]');
+          ylabel(['Altura ',num2str(L),'m']);
+          grid on 
+     
+          set(handles.CurvaturaM,'Visible','off');
+       end 
+      
+      elseif c==1   
+      set(handles.CurvaturaM,'Visible','on');
+      CM=get(handles.DiferenciaCentral,'Value');
+      if ev>=1
+           if CM==1
+              plot(handles.axes1,[kappaS(:,ev), kappaD(:,ev)],CoordZ,'o');
+              grid on 
+              title('Curvatura de las formas modales en el elemento sano y en el dañado por el método de diferencias centrales');
+              legend(['Curvatura de las formas modales Nº ',num2str(ev),' en el elemento sano'],['Curvatura de las formas modales Nº ',num2str(ev),' en el elemento dañado']);
+              ylabel(['Altura',num2str(L),'m']);
+              xlabel('Curvatura de las Formas Modales');
+           else
+              axes(handles.axes1);
+              plot([CS(ev,:)' CD(ev,:)'],CoordZ,'o');
+              grid on
+              title('Curvatura de las formas modales en el elemento sano y en el dañado. Derivada de la curva ajustada');
+              legend(['Curvatura de las formas modales Nº ',num2str(ev),' en el elemento sano'],['Curvatura de las formas modales Nº ',num2str(ev),' en el elemento dañado']);
+              ylabel(['Altura',num2str(L),'m']);
+              xlabel('Curvatura de las Formas Modales');
+          end
+      else
+         if CM==1
+              plot(handles.axes1,[kappaS, kappaD],CoordZ);
+              grid on 
+              title('Curvatura de las formas modales en el elemento sano y en el dañado por el método de diferencias centrales');
+              ylabel(['Altura',num2str(L),'m']);
+              xlabel('Curvatura de las Formas Modales');
+          else
+              plot(handles.axes1,[CS', CD'],CoordZ);
+              grid on
+              title('Curvatura de las formas modales en el elemento sano y en el dañado. Derivada de la curva ajustada');
+              ylabel(['Altura',num2str(L),'m']);
+              xlabel('Curvatura de las Formas Modales');
+          end
+      end   
+      else    
+        axes(handles.axes1);
+        [md,indd]=min(EIdan);
+        [ms,inds]=min(EIsano);
+        semilogx(EIdan,CoordZ,'or'); 
+        hold on
+        semilogx(EIsano,CoordZ,'ob');
+        legend('EI Dañado','EI Sano');
+        plot(md,CoordZ(indd),'or','MarkerFaceColor','r','MarkerSize',10);
+        plot(ms,CoordZ(inds),'or','MarkerFaceColor','b','MarkerSize',10);
+        grid on
+        title('Rigidez (EI) a partir de las formas modales consideradas [kN-m^2]');
+        ylabel(['Nodos']);
+        xlabel('EI [kN-m^2]');
+        hold off
+         
+       set(handles.CurvaturaM,'Visible','off');
+      end
+      
+      set(handles.buttongroup1,'Visible','off');
+      set(handles.Modo,'Visible','off');
+      set(handles.M,'Visible','off');
+      set(handles.wavelets,'Visible','off');
+      
+      
+    case 6                  % Método de Cambio de la Flexibilidad medida dinámicamente
+        
+       [DeltaC ]=CabioDeFlexibilidad( OmegaS, OmegaD, PhiS, PhiD );
+        
+        MaxC=max(abs(DeltaC));
+        [mm,ind]=max(MaxC); 
+        h=CoordZ(ind);
+        axes(handles.axes1);
+        p=plot(MaxC,CoordZ,'o',mm,CoordZ(ind));
+        p(2).Marker='*';
+        p(2).MarkerSize=10;
+        p(2).MarkerFaceColor='r';
+        title({'Cambio de la Matriz Flexibilidad medida dinámicamente',''});
+        legend('\Delta C',['Máxima flexibilidad a los ',num2str(h),' m de altura'],'Location','southeast');
+        ylabel('Altura');
+        xlabel('Cambio de la Matriz Flexibilidad ');
+        grid on
+
+       set(handles.buttongroup1,'Visible','off');
+       set(handles.buttongroup2,'Visible','off');
+       set(handles.Modo,'Visible','off');
+       set(handles.M,'Visible','off');
+       set(handles.wavelets,'Visible','off');
+       set(handles.CurvaturaM,'Visible','off');
+       set(handles.Elem,'Visible','off');
+       set(handles.ElementoAVisualizar,'Visible','off');
+       
+    case 7                  % Método del cambio de la matriz de Rigidez, medida dinámicamente
+       
+       [ DeltaK ] = CabioDeMatrizRigidez( OmegaS,OmegaD, PhiS, PhiD, Masa );
+        
+        d=diag(DeltaK);
+        [mn,cor]=min(d);
+        h=CoordZ(cor);
+        axes(handles.axes1);
+        g=plot(d,CoordZ,'o',mn,CoordZ(cor));
+        title({'Cambio de la Matriz Rigidez medida dinámicamente',''});
+        legend('\Delta K',['Rigidez mínima a los ',num2str(h),' m de altura'],'Location','southeast');
+        ylabel('Altura');
+        xlabel('Cambio de la Matriz Rigidez ');
+        g(2).Marker='*';
+        g(2).MarkerSize=10;
+        g(2).MarkerFaceColor='r';
+        grid on
+       
+       set(handles.buttongroup1,'Visible','off');
+       set(handles.buttongroup2,'Visible','off');
+       set(handles.Modo,'Visible','off');
+       set(handles.M,'Visible','off');
+       set(handles.wavelets,'Visible','off');
+       set(handles.CurvaturaM,'Visible','off');
+       set(handles.Elem,'Visible','off');
+       set(handles.ElementoAVisualizar,'Visible','off');
+       
+        
+    case 8                  % Método de Curvatura de las Formas Modales
+
+      [DifCurvDC] = CurvaturaFormaModal( PhiS, PhiD, NumNode, NM, L, CoordZ );
+ 
+       axes(handles.axes1);
+       [a,b]=max(DifCurvDC);
+        h=CoordZ(b);
+        p=plot(DifCurvDC,CoordZ,'o',a,CoordZ(b));
+        p(2).Marker='*';
+        p(2).MarkerSize=10;
+        p(2).MarkerFaceColor='r';
+        title('Método de Curvaturas Modales (MCM)');
+        ylabel('Diferencias Centrales');
+        xlabel('Nodos');
+        grid on
+
+     
+       set(handles.buttongroup1,'Visible','off');
+       set(handles.buttongroup2,'Visible','off');
+       set(handles.Modo,'Visible','off');
+       set(handles.M,'Visible','off');
+       set(handles.wavelets,'Visible','off');
+       set(handles.CurvaturaM,'Visible','off');
+       set(handles.Elem,'Visible','off');
+       set(handles.ElementoAVisualizar,'Visible','off');
+      
+    
+    case 9                  % Wavelet
+
+        set(handles.wavelets,'Visible','on');
+        wav= get(handles.wavelets,'Value');                 % returns selected item from popupmenu(wavelets)
+    switch wav
+    case 1          % Daubechies 2 (db2) 
+        wavelet = 'db2';
+        N= 'Daubechies 2';
+    case 2          % Daubechies 4 (db4)
+        wavelet= 'db4';
+        N= 'Daubechies 4' ;
+    case 3          % Daubechies 8 (db8)
+        wavelet= 'db8';
+        N= 'Daubechies 8';
+    case 4          % Gaussian 2 (gaus2) 
+        wavelet= 'gaus2';
+        N= 'Gaussian 2';
+        
+    case 5          % Gaussian 4 (gaus4) 
+        wavelet= 'gaus4';
+        N= 'Gaussian 4';
+   
+    case 6          % Gaussian 8 (gaus8) 
+        wavelet= 'gaus8';
+        N= 'Gaussian 8';
+        
+    case 7          % Symlet 2 (sym2) 
+        wavelet= 'sym2';
+        N= 'Symlet 2';
+        
+    case 8          % Symlet 4 (sym4)    
+        wavelet= 'sym4';
+        N= 'Symlet 4';
+        
+    case 9          % Symlet 8 (sym8)   
+        wavelet= 'sym8';
+        N= 'Symlet 8';
+        
+    case 10          % Coiflet 2 (coif2) 
+        wavelet= 'coif2';
+        N= 'Coiflet 2';
+        
+    case 11          % Coiflet 4 (coif4) 
+        wavelet= 'coif4';
+        N= 'Coiflet 4';
+        
+    case 12         % Morlet (Morl)
+        wavelet= 'Morl';
+        N= 'Morlet';
+        
+    case 13         % Haar   
+        wavelet= 'Haar';
+        N= 'Haar';
+
+        
+    otherwise
+end
+        [ SDI ] = Wavelet(wavelet, PhiDan, NumNode, NumMode, CoordZ );
+        scale=1;
+        nvalues=1091;
+        [m,i]=max(SDI);
+        h=CoordZ(i)
+        axes(handles.axes1);
+        plot(SDI,CoordZ);
+        grid on
+        hold on
+        plot(m*ones(1,length(CoordZ)),CoordZ,'-','LineWidth',1.25); 
+        xlabel('SDI');
+        ylabel(['Altura ',num2str(L),'m']); 
+        title(['Indice de Daños Estandarizados (SDI) usando ', N, ' con escala ', num2str(scale)]);
+        hold off 
+   
+       set(handles.buttongroup1,'Visible','off');
+       set(handles.buttongroup2,'Visible','off');
+       set(handles.Modo,'Visible','off');
+       set(handles.M,'Visible','off');
+       set(handles.CurvaturaM,'Visible','off');
+       set(handles.Elem,'Visible','off');
+       set(handles.ElementoAVisualizar,'Visible','off');
+             
+    otherwise               %
+        
+end  
+
+
+% --- Executes on button press in Rigidez.
+function Rigidez_Callback(hObject, eventdata, handles)
+% hObject    handle to Rigidez (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+% Hint: get(hObject,'Value') returns toggle state of Rigidez
+      set(handles.CurvaturaM,'Visible','off'); %%%%%%%%%%%%%%%%
+      global PhiSana PhiDan NumNode NumMode L MomentoS MomentoD CoordZ;
+     [~,~, EIsano, EIdan,~,~ ] = RigidezDirecta( PhiSana, PhiDan, NumNode, NumMode, L, MomentoS, MomentoD, CoordZ );
+        axes(handles.axes1);
+        [md,indd]=min(EIdan);
+        [ms,inds]=min(EIsano);
+        semilogx(EIdan,CoordZ,'or'); 
+        hold on
+        semilogx(EIsano,CoordZ,'ob');
+        plot(md,CoordZ(indd),'or','MarkerFaceColor','r','MarkerSize',10);
+        plot(ms,CoordZ(inds),'or','MarkerFaceColor','b','MarkerSize',10);
+        legend('EI Dañado','EI Sano');
+        grid on
+        title('Rigidez (EI) a partir de las formas modales consideradas [kN-m^2]');
+        ylabel(['Nodos']);
+        xlabel('EI [kN-m^2]');
+        hold off
+
+
+% --- Executes on button press in CurvaturaModal.
+function CurvaturaModal_Callback(hObject, eventdata, handles)
+% hObject    handle to CurvaturaModal (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+% Hint: get(hObject,'Value') returns toggle state of CurvaturaModal
+     set(handles.CurvaturaM,'Visible','on');
+     
+     global PhiSana PhiDan NumNode NumMode L  omegaS omegaD MomentoS MomentoD CoordZ;
+        ev=str2double(get(handles.ElementoAVisualizar,'String'));
+        cm=str2double(get(handles.CantidadModo,'String'));
+     if cm>=1 & cm<=NumNode-1
+            [ PhiS,PhiD,NM,~,~,MomentS,MomentD ] =Modos(cm,NumNode, PhiSana, PhiDan, NumMode, omegaS, omegaD, MomentoS, MomentoD);
+       
+            [kappaS,kappaD,~, ~,CS,CD ] = RigidezDirecta( PhiS, PhiD, NumNode, NM, L, MomentS, MomentD, CoordZ );
+                           
+          CM=get(handles.DiferenciaCentral,'Value')
+        if ev>=1 
+          if CM==1
+              ev=str2double(get(handles.ElementoAVisualizar,'String'));
+              plot(handles.axes1,[kappaS(:,ev), kappaD(:,ev)],CoordZ,'o');
+             legend(['Curvatura de las formas modales Nº ',num2str(ev),' en el elemento sano'],['Curvatura de las formas modales Nº ',num2str(ev),' en el elemento dañado']);
+              title('Curvatura de las formas modales en el elemento sano y en el dañado por el método de diferencias centrales');
+              ylabel(['Altura ',num2str(L),'m']);
+              xlabel('Curvatura de las Formas Modales');
+              grid on 
+          else
+              plot(handles.axes1,[CS(ev,:)', CD(ev,:)'],CoordZ,'o');
+              legend(['Curvatura de las formas modales Nº ',num2str(ev),' en el elemento sano'],['Curvatura de las formas modales Nº ',num2str(ev),' en el elemento dañado']); 
+              title('Curvatura de las formas modales en el elemento sano y en el dañado. Derivada de la curva ajustada');
+              ylabel(['Altura ',num2str(L),'m']);
+              xlabel('Curvatura de las Formas Modales');
+              grid on
+          end
+        else 
+            if CM==1
+              plot(handles.axes1,[kappaS, kappaD],CoordZ,'o');
+             legend(['Curvatura de ',num2str(cm),' formas modales del elemento sano'],['Curvatura de ',num2str(cm),' formas modales del elemento dañado']);
+              title('Curvatura de las formas modales en el elemento sano y en el dañado por el método de diferencias centrales');
+              ylabel(['Altura ',num2str(L),'m']);
+              xlabel('Curvatura de las Formas Modales');
+              grid on 
+          else
+              plot(handles.axes1,[CS', CD'],CoordZ,'o');
+              legend(['Curvatura de las formas modales Nº ',num2str(cm),' en el elemento sano'],['Curvatura de las formas modales Nº ',num2str(cm),' en el elemento dañado']); 
+              title('Curvatura de las formas modales en el elemento sano y en el dañado. Derivada de la curva ajustada');
+              ylabel(['Altura ',num2str(L),'m']);
+              xlabel('Curvatura de las Formas Modales');
+              grid on
+          end
+        end
+        
+        else
+            PhiS=PhiSana;
+            PhiD=PhiDan;
+            NM=NumMode;
+            OmegaS=omegaS;
+            OmegaD=omegaD;
+            MomentS=MomentoS;
+            MomentD=MomentoD;
+            
+            [kappaS,kappaD,~, ~,CS,CD ] = RigidezDirecta( PhiS, PhiD, NumNode, NM, L, MomentS, MomentD, CoordZ );
+                           
+            CM=get(handles.DiferenciaCentral,'Value')
+        if ev>=1 
+          if CM==1
+              ev=str2double(get(handles.ElementoAVisualizar,'String'));
+              plot(handles.axes1,[kappaS(:,ev), kappaD(:,ev)],CoordZ,'o');
+             legend(['Curvatura de las formas modales Nº ',num2str(ev),' en el elemento sano'],['Curvatura de las formas modales Nº ',num2str(ev),' en el elemento dañado']);
+              title('Curvatura de las formas modales en el elemento sano y en el dañado por el método de diferencias centrales');
+              ylabel(['Altura ',num2str(L),'m']);
+              xlabel('Curvatura de las Formas Modales');
+              grid on 
+          else
+              plot(handles.axes1,[CS(ev,:)', CD(ev,:)'],CoordZ,'o');
+              legend(['Curvatura de las formas modales Nº ',num2str(ev),' en el elemento sano'],['Curvatura de las formas modales Nº ',num2str(ev),' en el elemento dañado']); 
+              title('Curvatura de las formas modales en el elemento sano y en el dañado. Derivada de la curva ajustada');
+              ylabel(['Altura ',num2str(L),'m']);
+              xlabel('Curvatura de las Formas Modales');
+              grid on
+          end
+        else 
+            if CM==1
+              ev=str2double(get(handles.ElementoAVisualizar,'String'));
+              plot(handles.axes1,[kappaS, kappaD],CoordZ);
+              title('Curvatura de las formas modales en el elemento sano y en el dañado por el método de diferencias centrales');
+              ylabel(['Altura ',num2str(L),'m']);
+              xlabel('Curvatura de las Formas Modales');
+              grid on 
+          else
+              plot(handles.axes1,[CS', CD'],CoordZ);
+              title('Curvatura de las formas modales en el elemento sano y en el dañado. Derivada de la curva ajustada');
+              ylabel(['Altura ',num2str(L),'m']);
+              xlabel('Curvatura de las Formas Modales');
+              grid on
+          end
+        end  
+     end
+         
+
+% --- Executes on button press in Momento.
+function Momento_Callback(hObject, eventdata, handles)
+% hObject    handle to Momento (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+% Hint: get(hObject,'Value') returns toggle state of Momento
+      set(handles.CurvaturaM,'Visible','off');
+      global PhiSana PhiDan NumNode NumMode L  omegaS omegaD MomentoS MomentoD;
+        cm=str2double(get(handles.CantidadModo,'String'));
+        ev=str2double(get(handles.ElementoAVisualizar,'String'));
+        if cm>=1 & cm<=NumNode-1
+            [ ~,~,~,~,~,MomentS,MomentD ] =Modos(cm,NumNode, PhiSana, PhiDan, NumMode, omegaS, omegaD, MomentoS, MomentoD);
+      [a,b]=size(MomentS);
+      y=linspace(0,L,a);
+      axes(handles.axes1);
+      if ev>=1
+          plot([MomentS(:,ev), MomentD(:,ev)],y);
+          legend([num2str(ev),' Momento Sano'],[num2str(ev),' Momento Dañado']);
+          title('Momentos de las Fuerzas de Inercia que surgen por modos en el elemento sano y el dañado');
+          xlabel('Momentos de las Fuerzas de Inercia [kN]');
+          ylabel(['Altura ',num2str(L),'m']);
+          grid on
+          hold off
+      else
+       plot([MomentS, MomentD],y);
+      title('Momentos de las Fuerzas de Inercia que surgen por modos en el elemento sano y el dañado');
+      xlabel('Momentos de las Fuerzas de Inercia [kN]');
+      ylabel(['Altura ',num2str(L),'m']);
+      grid on
+      hold off   
+      end
+        else
+            PhiS=PhiSana;
+            PhiD=PhiDan;
+            NM=NumMode;
+            OmegaS=omegaS;
+            OmegaD=omegaD;
+            MomentS=MomentoS;
+            MomentD=MomentoD;
+            
+          if ev>=1
+              [a,b]=size(MomentS);
+              y=linspace(0,L,a);
+              axes(handles.axes1);
+              plot([MomentS(:,ev), MomentD(:,ev)],y);
+              legend([num2str(ev),' Momento Sano'],[num2str(ev),' Momento Dañado']);
+              title('Momentos de las Fuerzas de Inercia que surgen por modos en el elemento sano y el dañado');
+              xlabel('Momentos de las Fuerzas de Inercia [kN]');
+              ylabel(['Altura ',num2str(L),'m']);
+              grid on
+              hold off
+          else
+           [a,b]=size(MomentS);
+           y=linspace(0,L,a);
+           axes(handles.axes1);
+           plot([MomentS, MomentD],y);
+          title('Momentos de las Fuerzas de Inercia que surgen por modos en el elemento sano y el dañado');
+          xlabel('Momentos de las Fuerzas de Inercia [kN]');
+          ylabel(['Altura ',num2str(L),'m']);
+          grid on
+          hold off   
+          end
+        end
+        
+     
+
+% --- Executes on slider movement.
+function M_Callback(hObject, eventdata, handles)
+% hObject    handle to M (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'Value') returns position of slider
+%        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
+    global L NumNode NumMode PhiSana PhiDan sana dan;
+    set(handles.M,'Max',NumMode)
+    m=round(get(handles.M,'Value'));      
+    x=linspace(0,L,NumNode);
+    x1=linspace(0,L);
+    axes(handles.axes1);
+    if m==0
+        plot(x,[PhiSana,PhiDan]);
+%         hold on
+%         plot(x1,[sana, dan]);  
+        grid on
+    else
+        S=sana(m,:);
+        D=dan(m,:);
+        PS=PhiSana(:,m);
+        PD=PhiDan(:,m);
+        plot(x,PS,'o-');
+        hold on
+%         plot(x,PD,'*');
+        plot(x1,S,'-');
+%         plot(x1,D,'--');
+        grid on
+        hold off
+    end
+
+
+% --- Executes during object creation, after setting all properties.
+function M_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to M (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: slider controls usually have a light gray background.
+if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor',[.9 .9 .9]);
+end
+
+
+% --- Executes during object creation, after setting all properties.
+function CurvaturaFormasModales_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to CurvaturaFormasModales (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+ global NumNode;
+ a=NumNode;
+
+     
+% --- Executes on button press in NMD.
+function NMD_Callback(hObject, eventdata, handles)
+% hObject    handle to NMD (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of NMD
+      
+      global NumMode PhiSana PhiDan;
+     [ ~, NMD ] = MAC(PhiSana, PhiDan ); 
+      x=1:NumMode;
+      bar(handles.axes1,x,NMD);
+      title('Diferencia Modal Normalizada (NMD)');
+      ylabel('Valor NMD');
+      xlabel('Modos');
+      grid on
+
+
+% --- Executes on button press in MAC.
+function MAC_Callback(hObject, eventdata, handles)
+% hObject    handle to MAC (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+% Hint: get(hObject,'Value') returns toggle state of MAC
+     global NumMode PhiSana PhiDan;
+     [ mac, ~ ] = MAC(PhiSana, PhiDan );
+      x=1:NumMode;
+      axes(handles.axes1);
+      stem(x,mac);
+      title('Criterio de Correlación Modal (MAC)');
+      ylabel('Valor MAC');
+      xlabel('Modos');
+      grid on
+      VM=zeros(1,NumMode);
+      VM(:,:)=0.85;
+      hold on
+      plot(VM,'r--');
+      hold off
+
+
+% --- Executes on selection change in wavelets.
+function wavelets_Callback(hObject, eventdata, handles)
+% hObject    handle to wavelets (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = cellstr(get(hObject,'String')) returns wavelets contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from wavelets
+
+
+% --- Executes during object creation, after setting all properties.
+function wavelets_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to wavelets (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on button press in DifCurvDCA.
+function DifCurvDCA_Callback(hObject, eventdata, handles)
+% hObject    handle to DifCurvDCA (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of DifCurvDCA
+       
+%        global PhiSana PhiDan NumNode NumMode L  omegaS omegaD MomentoS MomentoD;
+%         cm=str2double(get(handles.ElementoAVisualizar,'String'));
+%         if cm>=1 & cm<=NumNode-1
+%             [ PhiS,PhiD,NM,~,~,~,~] =Modos(cm,NumNode, PhiSana, PhiDan, NumMode, omegaS, omegaD, MomentoS, MomentoD);
+%         else
+%             PhiS=PhiSana;
+%             PhiD=PhiDan;
+%             NM=NumMode;
+%             OmegaS=omegaS;
+%             OmegaD=omegaD;
+%             MomentS=MomentoS;
+%             MomentD=MomentoD;
+%         end
+%        [~, DifCurvDCA,xc] = CurvaturaFormaModal( PhiS, PhiD, NumNode, NM, L );
+%        xdc=xc(2:end-1);
+%        axes(handles.axes1);
+%        plot(xdc, DifCurvDCA);
+%        title('Método de Curvaturas Modales (MCM)');
+%        ylabel('Derivada de la curva');
+%        xlabel('Nodos');
+%        grid on
+
+
+% --- Executes on button press in DifCurvDC.
+function DifCurvDC_Callback(hObject, eventdata, handles)
+% hObject    handle to DifCurvDC (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of DifCurvDC
+       global PhiSana PhiDan NumNode NumMode L  omegaS omegaD MomentoS MomentoD CoordZ;
+        cm=str2double(get(handles.ElementoAVisualizar,'String'));
+        if cm>=1 & cm<=NumNode-1
+            [ PhiS,PhiD,NM,~,~,~,~] =Modos(cm,NumNode, PhiSana, PhiDan, NumMode, omegaS, omegaD, MomentoS, MomentoD);
+        else
+            PhiS=PhiSana;
+            PhiD=PhiDan;
+            NM=NumMode;
+            OmegaS=omegaS;
+            OmegaD=omegaD;
+            MomentS=MomentoS;
+            MomentD=MomentoD;
+        end
+       [DifCurvDC] = CurvaturaFormaModal( PhiS, PhiD, NumNode, NM, L, CoordZ );
+       x=1:NumNode;
+       axes(handles.axes1);
+       [a,b]=max(FDCdc);
+        h=CoordZ(b);
+        p=plot(FDCdc,CoordZ,'o',a,CoordZ(b));
+        p(2).Marker='*';
+        p(2).MarkerSize=10;
+        p(2).MarkerFaceColor='r';
+       title('Método de Curvaturas Modales (MCM)');
+       ylabel('Diferencias centrales');
+       xlabel('Nodos');
+       grid on
+
+
+% --- Executes on button press in DiferenciaCentral.
+function DiferenciaCentral_Callback(hObject, eventdata, handles)
+% hObject    handle to DiferenciaCentral (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of DiferenciaCentral
+        global PhiSana PhiDan NumNode NumMode L  omegaS omegaD MomentoS MomentoD CoordZ;
+        cm=str2double(get(handles.CantidadModo,'String'));
+        ev=str2double(get(handles.ElementoAVisualizar,'String'));
+        if cm>=1 & cm<=NumNode-1
+            [ PhiS,PhiD,NM,~,~,MomentS,MomentD ] =Modos(cm,NumNode, PhiSana, PhiDan, NumMode, omegaS, omegaD, MomentoS, MomentoD);
+            [kappaS,kappaD, ~, ~, ~, ~ ] = RigidezDirecta( PhiS, PhiD, NumNode, NM, L, MomentS, MomentD,CoordZ);
+             if ev>=1
+                  plot(handles.axes1,[kappaS(:,ev), kappaD(:,ev)],CoordZ,'o');
+                  grid on
+                  legend(['Curvatura de las formas modales Nº ',num2str(ev),' en el elemento sano'],['Curvatura de las formas modales Nº ',num2str(ev),' en el elemento dañado']);
+                  title('Curvatura de las formas modales en el elemento sano y en el dañado por el método de diferencias centrales');
+                  ylabel(['Altura ',num2str(L),'m']);
+                  xlabel('Curvatura de las Formas Modales');
+             else
+                 plot(handles.axes1,[kappaS, kappaD],CoordZ);
+                  grid on
+                  legend(['Curvatura de las formas modales del elemento sano'],['Curvatura de las formas modales del elemento dañado']);
+                  title('Curvatura de las formas modales en el elemento sano y en el dañado por el método de diferencias centrales');
+                  ylabel(['Altura ',num2str(L),'m']);
+                  xlabel('Curvatura de las Formas Modales');
+             end
+        
+        else
+            PhiS=PhiSana;
+            PhiD=PhiDan;
+            NM=NumMode;
+            OmegaS=omegaS;
+            OmegaD=omegaD;
+            MomentS=MomentoS;
+            MomentD=MomentoD;
+          [kappaS,kappaD, ~, ~, ~, ~ ] = RigidezDirecta( PhiS, PhiD, NumNode, NM, L, MomentS, MomentD,CoordZ);
+              if ev>=1
+                  plot(handles.axes1,[kappaS(:,ev), kappaD(:,ev)],CoordZ,'o');
+                  grid on
+                  legend(['Curvatura de las formas modales Nº ',num2str(ev),' en el elemento sano'],['Curvatura de las formas modales Nº ',num2str(ev),' en el elemento dañado']);
+                  title('Curvatura de las formas modales en el elemento sano y en el dañado por el método de diferencias centrales');
+                  ylabel(['Altura ',num2str(L),'m']);
+                  xlabel('Curvatura de las Formas Modales');
+             else
+                 plot(handles.axes1,[kappaS, kappaD],CoordZ);
+                  grid on
+                  legend(['Curvatura de las formas modales del elemento sano'],['Curvatura de las formas modales del elemento dañado']);
+                  title('Curvatura de las formas modales en el elemento sano y en el dañado por el método de diferencias centrales');
+                  ylabel(['Altura ',num2str(L),'m']);
+                  xlabel('Curvatura de las Formas Modales');
+             end
+        end
+          
+
+
+% --- Executes on button press in Derivada.
+function Derivada_Callback(hObject, eventdata, handles)
+% hObject    handle to Derivada (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of Derivada
+        global PhiSana PhiDan NumNode NumMode L  omegaS omegaD MomentoS MomentoD CoordZ;
+        cm=str2double(get(handles.CantidadModo,'String'));
+        ev=str2double(get(handles.ElementoAVisualizar,'String'));
+        if cm>=1 & cm<=NumNode-1
+            [ PhiS,PhiD,NM,~,~,MomentS,MomentD ] =Modos(cm,NumNode, PhiSana, PhiDan, NumMode, omegaS, omegaD, MomentoS, MomentoD);
+            [~,~, ~, ~, CS, CD ] = RigidezDirecta( PhiS, PhiD, NumNode, NM, L, MomentS, MomentD, CoordZ);
+            if ev>=1
+              plot(handles.axes1,[CS(ev,:)', CD(ev,:)'],CoordZ,'o');
+              legend(['Curvatura de las formas modales Nº ',num2str(ev),' en el elemento sano'],['Curvatura de las formas modales Nº ',num2str(ev),' en el elemento dañado']);
+              title('Curvatura de las formas modales en el elemento sano y en el dañado. Derivada de la curva ajustada');
+              ylabel(['Altura ',num2str(L),'m']);
+              xlabel('Curvatura de las Formas Modales');
+              grid on 
+            else
+              [~,~, ~, ~, CS, CD ] = RigidezDirecta( PhiS, PhiD, NumNode, NM, L, MomentS, MomentD, CoordZ);
+              plot(handles.axes1,[CS', CD'],CoordZ);
+              legend(['Curvatura de las formas modales del elemento sano'],['Curvatura de las formas modales del elemento dañado']);
+              title('Curvatura de las formas modales en el elemento sano y en el dañado. Derivada de la curva ajustada');
+              ylabel(['Altura ',num2str(L),'m']);
+              xlabel('Curvatura de las Formas Modales');
+              grid on 
+            end
+        else
+            PhiS=PhiSana;
+            PhiD=PhiDan;
+            NM=NumMode;
+            OmegaS=omegaS;
+            OmegaD=omegaD;
+            MomentS=MomentoS;
+            MomentD=MomentoD;
+            
+          [~,~, ~, ~, CS, CD ] = RigidezDirecta( PhiS, PhiD, NumNode, NM, L, MomentS, MomentD, CoordZ);
+          if ev>=1
+              plot(handles.axes1,[CS(ev,:)', CD(ev,:)'],CoordZ,'o');
+              legend(['Curvatura de las formas modales Nº ',num2str(ev),' en el elemento sano'],['Curvatura de las formas modales Nº ',num2str(ev),' en el elemento dañado']);
+              title('Curvatura de las formas modales en el elemento sano y en el dañado. Derivada de la curva ajustada');
+              ylabel(['Altura ',num2str(L),'m']);
+              xlabel('Curvatura de las Formas Modales');
+              grid on 
+            else
+              [~,~, ~, ~, CS, CD ] = RigidezDirecta( PhiS, PhiD, NumNode, NM, L, MomentS, MomentD, CoordZ);
+              plot(handles.axes1,[CS', CD'],CoordZ);
+              legend(['Curvatura de las formas modales del elemento sano'],['Curvatura de las formas modales del elemento dañado']);
+              title('Curvatura de las formas modales en el elemento sano y en el dañado. Derivada de la curva ajustada');
+              ylabel(['Altura ',num2str(L),'m']);
+              xlabel('Curvatura de las Formas Modales');
+              grid on 
+            end 
+        end
+         
+
+
+% --- Executes during object creation, after setting all properties.
+function axes2_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to axes2 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: place code in OpeningFcn to populate axes2
+a=imread('0.png');
+image(a);
+axis off
+
+
+
+function ElementoAVisualizar_Callback(hObject, eventdata, handles)
+% hObject    handle to ElementoAVisualizar (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of ElementoAVisualizar as text
+%        str2double(get(hObject,'String')) returns contents of ElementoAVisualizar as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function ElementoAVisualizar_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to ElementoAVisualizar (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function CantidadModo_Callback(hObject, eventdata, handles)
+% hObject    handle to CantidadModo (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of CantidadModo as text
+%        str2double(get(hObject,'String')) returns contents of CantidadModo as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function CantidadModo_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to CantidadModo (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
